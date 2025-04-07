@@ -3,7 +3,6 @@
 Did you ever struggled to keep an eye where you are when writing from a txt from your pc  
 now you can do this easily with [WritePerLineTool](https://hg-erik.github.io/WritePerLineTool/)
 
-HERE
 
 ### 🔴 Disclaimer – Very early build  
 i wrote this in like 1 hour   
@@ -13,13 +12,14 @@ i wrote this in like 1 hour
 
 ## 💡 What is this?
 
-A simple web tool that helps you write text **line by line**.  
+A simple web tool that helps you write text **line by line**
 
 ## ⚙️ How it works
 
 - Paste your text into the textbox  
-- Choose where you want to start from  
-- Start writing, one line at a time
+- Choose where you want to start from
+- Start writing
+- Press **Enter** or **Space** for the next line to come
 
 ## ✨ Features
 
