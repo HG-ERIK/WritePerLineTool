@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Write Per Line Tool</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #0e0e0e;
+      color: white;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+    }
+
+    #inputArea {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    .textRow {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    #textInput {
+      width: 600px;
+      height: 150px;
+      border-radius: 15px;
+      border: none;
+      padding: 1rem;
+      background-color: #1f1f1f;
+      color: #eee;
+      font-size: 1.2rem;
+      resize: none;
+      white-space: pre;
+      overflow-x: auto;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    #previewPanel {
+      display: none;
+      flex-direction: row;
+      gap: 20px;
+      align-items: flex-start;
+      margin-top: 2rem;
+    }
+
+    #previewList {
+      max-height: 400px;
+      overflow-y: auto;
+      background-color: #1a1a1a;
+      border-radius: 10px;
+      padding: 1rem;
+      width: calc(100vw - 320px);
+      font-family: monospace;
+      font-size: 1rem;
+      white-space: pre;
+      line-height: 1.6;
+    }
+
+    #startPanel {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    #startIndex {
+      width: 150px;
+      padding: 0.8rem;
+      border-radius: 12px;
+      border: none;
+      background: #1f1f1f;
+      color: white;
+    }
+
+    .button {
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 12px;
+      background: #3a3aff;
+      color: white;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .button:hover {
+      background: #2c2ccc;
+    }
+
+    #stats {
+      display: none;
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.5rem;
+    }
+
+    .statRow {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .statBox {
+      background-color: #1c1c1c;
+      border-radius: 10px;
+      padding: 0.8rem 1rem;
+      text-align: center;
+      font-size: 1.1rem;
+      min-width: 80px;
+    }
+
+    .etaBox {
+      background-color: #282828;
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+      font-size: 1.2rem;
+      min-width: 160px;
+    }
+
+    .etaArrow {
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top: 10px solid white;
+      margin: 0.3rem auto;
+    }
+
+    .etaTimeBox {
+      background-color: #1c1c1c;
+      border-radius: 8px;
+      padding: 0.6rem 1rem;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    #content {
+      padding: 8rem 4rem 4rem 4rem;
+      max-width: 1000px;
+      margin: 0 auto;
+      font-size: 1.25rem;
+    }
+
+    .line {
+      padding: 10px 0;
+    }
+
+    .old-line {
+      color: gray;
+    }
+
+    .next-line {
+      color: #222;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Write Per Line Tool</h1>
+  </header>
+
+  <div id="inputArea">
+    <div class="textRow">
+      <textarea id="textInput" placeholder="Paste your text here..."></textarea>
+      <button class="button" onclick="showPreview()">Go</button>
+    </div>
+  </div>
+
+  <div id="previewPanel">
+    <div id="previewList"></div>
+    <div id="startPanel">
+      <button class="button" onclick="startReading()">Go fr</button>
+      <input type="number" id="startIndex" placeholder="start from:" min="0">
+    </div>
+  </div>
+
+  <div id="stats">
+    <div class="statRow">
+      <div class="statBox" id="percent">0%</div>
+      <div class="statBox" id="remaining">0 left</div>
+    </div>
+    <div class="etaBox" id="et">ETA: 00:00</div>
+    <div class="etaArrow"></div>
+    <div class="etaTimeBox" id="etaTime">End at: --:--</div>
+  </div>
+
+  <div id="content"></div>
+
+  <script>
+    let lines = [];
+    let currentLine = 0;
+    let startTime = null;
+    let timestamps = [];
+
+    function showPreview() {
+      const input = document.getElementById('textInput').value.trim();
+      if (!input) return;
+
+      lines = input.split('\n');
+      const previewList = document.getElementById('previewList');
+      previewList.innerHTML = '';
+
+      lines.forEach((line, index) => {
+        const lineDiv = document.createElement('div');
+        lineDiv.textContent = `${index + 1}. ${line}`;
+        previewList.appendChild(lineDiv);
+      });
+
+      document.getElementById('inputArea').style.display = 'none';
+      document.getElementById('previewPanel').style.display = 'flex';
+    }
+
+    function startReading() {
+      currentLine = parseInt(document.getElementById('startIndex').value || 0) - 1;
+      document.getElementById('previewPanel').style.display = 'none';
+      document.getElementById('stats').style.display = 'flex';
+      document.getElementById('content').innerHTML = '';
+      startTime = performance.now();
+      timestamps = [];
+      showNextLine();
+      updateStats();
+    }
+
+    function showNextLine() {
+      if (currentLine >= 0) {
+        const oldLine = document.querySelector(`#line-${currentLine}`);
+        if (oldLine) oldLine.classList.add('old-line');
+      }
+
+      const previousNext = document.querySelector('.next-line');
+      if (previousNext) previousNext.remove();
+
+      currentLine++;
+      if (currentLine >= lines.length) return;
+
+      const content = document.getElementById('content');
+      const newLine = document.createElement('div');
+      newLine.className = 'line';
+      newLine.id = `line-${currentLine}`;
+      newLine.textContent = lines[currentLine];
+      content.appendChild(newLine);
+
+      if (currentLine + 1 < lines.length) {
+        const nextLine = document.createElement('div');
+        nextLine.className = 'line next-line';
+        nextLine.textContent = lines[currentLine + 1];
+        content.appendChild(nextLine);
+      }
+
+      timestamps.push(performance.now());
+      if (timestamps.length > 10) timestamps.shift();
+
+      newLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function updateStats() {
+      const remaining = lines.length - currentLine - 1;
+      document.getElementById('remaining').textContent = `${remaining >= 0 ? remaining : 0} left`;
+
+      const percent = Math.floor((currentLine / lines.length) * 100);
+      document.getElementById('percent').textContent = `${percent}%`;
+
+      let avgTime = 0;
+      if (timestamps.length > 1) {
+        const diffs = [];
+        for (let i = 1; i < timestamps.length; i++) {
+          diffs.push(timestamps[i] - timestamps[i - 1]);
+        }
+        avgTime = diffs.reduce((a, b) => a + b) / diffs.length / 1000;
+      }
+
+      const secondsRemaining = Math.round(avgTime * (lines.length - currentLine));
+      const minutes = Math.floor(secondsRemaining / 60);
+      const seconds = secondsRemaining % 60;
+      document.getElementById('et').textContent = `ETA: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+      const finishDate = new Date(Date.now() + secondsRemaining * 1000);
+      const finishTime = finishDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+      document.getElementById('etaTime').textContent = `End at: ${finishTime}`;
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if ((e.key === 'Enter' || e.key === ' ') && lines.length > 0) {
+        e.preventDefault();
+        showNextLine();
+        updateStats();
+      }
+    });
+  </script>
+</body>
+</html>
