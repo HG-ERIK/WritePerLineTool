@@ -25,8 +25,7 @@ A simple web tool that helps you write text **line by line**
 ## ✨ Features
 
 - **ETA (Estimated Time of Arrival)** – Tells you how long will the writing take and when it ends  
-- **Progress tracking** – See how much you’ve written, how much is left, and more  
-- Clean, focused UI to help you stay on track  
+- **Progress tracking** – See how much you’ve written, how much is left, and more   
 
 ## 🔗 Try it out
 
