@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <!-- Ensures proper rendering on mobile -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Write Per Line Tool</title>
   <style>
@@ -11,6 +12,7 @@
       color: white;
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
     }
 
     header {
@@ -38,8 +40,10 @@
       gap: 10px;
     }
 
+    /* Changed #textInput to be flexible on mobile */
     #textInput {
-      width: 600px;
+      width: 100%;
+      max-width: 600px;
       height: 150px;
       border-radius: 15px;
       border: none;
@@ -51,6 +55,7 @@
       white-space: pre;
       overflow-x: auto;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      box-sizing: border-box;
     }
 
     #previewPanel {
@@ -62,16 +67,17 @@
     }
 
     #previewList {
+      max-width: calc(100vw - 320px);
       max-height: 400px;
       overflow-y: auto;
       background-color: #1a1a1a;
       border-radius: 10px;
       padding: 1rem;
-      width: calc(100vw - 320px);
       font-family: monospace;
       font-size: 1rem;
       white-space: pre;
       line-height: 1.6;
+      box-sizing: border-box;
     }
 
     #startPanel {
@@ -157,9 +163,9 @@
 
     #content {
       padding: 8rem 4rem 4rem 4rem;
-      max-width: 1000px;
       margin: 0 auto;
-      font-size: 1.25rem;
+      max-width: 1000px;
+      box-sizing: border-box;
     }
 
     .line {
@@ -172,6 +178,52 @@
 
     .next-line {
       color: #222;
+    }
+
+    /* Updated mobile "Next" button to match other button shapes */
+    #mobileNextButton {
+      display: none; /* Only shown on mobile */
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 999;
+      padding: 0.8rem 1.5rem;
+      border-radius: 12px;
+      border: none;
+      font-size: 1rem;
+      font-weight: bold;
+      color: white;
+      background-color: #3a3aff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      cursor: pointer;
+    }
+
+    #mobileNextButton:hover {
+      background-color: #2c2ccc;
+    }
+
+    /* Media queries for better mobile compatibility */
+    @media (max-width: 768px) {
+      .textRow {
+        flex-direction: column;
+        width: 100%;
+      }
+      #textInput {
+        width: 90%;
+        max-width: none;
+      }
+      #previewList {
+        width: 90%;
+        max-width: none;
+      }
+      #startPanel {
+        width: 90%;
+        margin-top: 1rem;
+      }
+      #content {
+        padding: 4rem 1rem;
+        max-width: 100%;
+      }
     }
   </style>
 </head>
@@ -206,6 +258,9 @@
   </div>
 
   <div id="content"></div>
+
+  <!-- Mobile-only Next button -->
+  <button id="mobileNextButton" onclick="mobileNextLine()">Next</button>
 
   <script>
     let lines = [];
@@ -300,11 +355,49 @@
       document.getElementById('etaTime').textContent = `End at: ${finishTime}`;
     }
 
+    // Keyboard-based navigation
     document.addEventListener('keydown', (e) => {
       if ((e.key === 'Enter' || e.key === ' ') && lines.length > 0) {
         e.preventDefault();
         showNextLine();
         updateStats();
+      }
+    });
+
+    // Touch-based navigation (tap near the current line)
+    document.addEventListener('touchend', function(e) {
+      if (lines.length > 0) {
+        const currentElem = document.getElementById(`line-${currentLine}`);
+        if (currentElem) {
+          const rect = currentElem.getBoundingClientRect();
+          const touch = e.changedTouches[0];
+          const buffer = 20; // 20px margin of error
+          if (
+            touch.clientX >= rect.left - buffer && touch.clientX <= rect.right + buffer &&
+            touch.clientY >= rect.top - buffer && touch.clientY <= rect.bottom + buffer
+          ) {
+            showNextLine();
+            updateStats();
+          }
+        }
+      }
+    });
+
+    // Function for the mobile button
+    function mobileNextLine() {
+      showNextLine();
+      updateStats();
+    }
+
+    // Simple check for mobile device
+    function isMobileDevice() {
+      return /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    }
+
+    // Show mobile button if user is on mobile
+    window.addEventListener('DOMContentLoaded', () => {
+      if (isMobileDevice()) {
+        document.getElementById('mobileNextButton').style.display = 'block';
       }
     });
   </script>
