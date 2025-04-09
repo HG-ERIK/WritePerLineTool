@@ -5,10 +5,11 @@ now you can do this easily with [WritePerLineTool](https://hg-erik.github.io/Wri
 
 
 ### 🔴 Disclaimer – Very early build  
-i wrote this in like 1 hour   
-- It doesn’t work on phones  
-- The counter gets buggy real quick  
-- Im lazy to fix the other bugs srry bruhu   
+i wrote this in like 1 hour    
+- The counter gets buggy real quick
+- The whole layout can get buggy, doesnt work very well on phones but now it sorta does
+  you can touch the line or with the next button  
+- Im lazy to fix the other bugs srry btw i will sometime   
 
 ## 💡 What is this?
 
